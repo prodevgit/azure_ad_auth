@@ -34,7 +34,7 @@ class Login(Resource):
     
 class Logout(Resource):
     def get(self):
-        current_user = User.query.filter_by(email = session["user"]['preferred_username']).first()
+        current_user = User.query.filter_by(email = session["user"]).first()
         current_user.access_token = None
         current_user.refresh_token = None
         db.session.commit()
@@ -71,7 +71,7 @@ class Authorized(Resource):
             db.session.commit()
             if "error" in result:
                 return {"status":"error_result", "result":result}
-            session["user"] = result.get("id_token_claims")
+            session["user"] = id_token['preferred_username']
             _save_cache(cache)
         print("ABC")
         data = {'message':'success','data':{'token':result['access_token']}}
@@ -88,7 +88,7 @@ class UserEmail(Resource):
     method_decorators = [token_required]
     def get(self):
         token = _get_token_from_cache(app_config.SCOPE)
-        current_user = User.query.filter_by(email=session['user']['preferred_username']).first()
+        current_user = User.query.filter_by(email=session['user']).first()
         return {'email':current_user.email}
 
 #MSAI FUNCTIONS
